@@ -19,7 +19,22 @@ import time
 import shutil
 import os
 import ast
+ 
 
+def load_font(size):
+    candidates = [
+        "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",
+        "/usr/share/fonts/truetype/liberation/LiberationSans-Regular.ttf",
+        "/usr/share/fonts/truetype/freefont/FreeSans.ttf",
+    ]
+
+    for path in candidates:
+        try:
+            return ImageFont.truetype(path, size)
+        except OSError:
+            pass
+
+    return ImageFont.load_default()
 
 def text_to_image(image, text,rectangle_area,font_size=40):
     """
@@ -41,7 +56,7 @@ def text_to_image(image, text,rectangle_area,font_size=40):
     draw = ImageDraw.Draw(image)
 
     # Define the default font
-    font = ImageFont.truetype("arial.ttf", font_size,encoding="unic")
+    font = load_font(font_size)
 
     # Define the rectangle area to add text
     x1, y1, x2, y2 = rectangle_area
@@ -356,29 +371,37 @@ def background(image:Image, fills:list, edges:list):
     metadata = np.array((ep_i*w, ep_i*h, (1-ep_i)*w, (1-ep_i)*h)).astype(int)
     return image, metadata
 
-
+ 
 def read_song_file(song_file):
-    """Reads and parses song file"""  
+    """Reads song file where each line is one entry"""
     song_list = []
-    with open(song_file,"r",encoding="utf-8") as inFile: 
+
+    with open(song_file, "r", encoding="utf-8") as inFile:
         for line in inFile:
-            if len(line) == 0 or line == "\n": continue
-            data = line.split(" - ")
-            artist,song = data[0].strip(),data[1].strip()
-            text = f"{artist} – {song}"
-            song_list.append(text)
+            line = line.strip()
+            if not line:
+                continue
+            song_list.append(line)
+
     return song_list
 
 
 def read_input(input_file):
-    """Reads and parses input file"""  
     parameters = {}
-    with open(input_file,"r") as inFile: 
-        for line in inFile:
-            if line.strip() == "": continue
-            elif line.strip().startswith("!"): continue
-            key_value, comment = line.strip().split('!', 1) if '!' in line else (line.strip(), '')
-            key, value = key_value.split('=', 1)
+
+    with open(input_file, "r", encoding="utf-8") as f:
+        for line in f:
+            line = line.strip()
+            if not line or line.startswith("!"):
+                continue
+
+            line = line.split("!", 1)[0].strip()
+
+            try:
+                key, value = line.split("=", 1)
+            except ValueError:
+                continue
+
             parameters[key.strip()] = value.strip()
 
     return parameters
@@ -481,9 +504,9 @@ input_file = args.file
 parameters = read_input(input_file)
 
 # Card structure
-NROWS, NCOLS = int(parameters.get("NROWS",3)), int(parameters.get("NCOLS",10))
-N_PLAYERS = int(parameters.get("N_PLAYERS",10))
-N_SONGS_CARD = int(parameters.get("N_SONGS_CARD",12))
+NROWS, NCOLS = int(parameters.get("NROWS",5)), int(parameters.get("NCOLS",5))
+N_PLAYERS = int(parameters.get("N_PLAYERS",75))
+N_SONGS_CARD = int(parameters.get("N_SONGS_CARD",25))
 N_IMAGES_CARD = int(parameters.get("N_IMAGES_CARD",0))
 
 # Card image format
