@@ -1,3 +1,12 @@
+# Kør skidtet
+```
+python3 -m venv .venv
+source .venv/bin/activate
+python3 -m pip install numpy
+python3 -m pip install Pillow
+python3 musical_bingo.py /home/andreas/Music/musikbingo/input.txt
+```
+
 # Musical Bingo: Card Generation
 
 This Python script allows for an automatic generation of bingo cards for Musical Bingo (Normal bingo but with songs). You must supply the song list and images (optional), and specify some fromat in the input file (otherwhise it will take the default values).
@@ -54,3 +63,4 @@ To easily export a Spotify playlist you can use [TuneMyMusic](https://www.tunemy
 For any doubts or questions, contact [Diego Ontiveros](https://github.com/diegonti) ([Mail](mailto:diegonti.doc@gmail.com)).
 
 <br><br>
+
